@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-
+#import "MainController.h"
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-
+@property(nonatomic,strong)MainController *mainController;
+@property(nonatomic,strong)NSDictionary *dictUserInfo;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
@@ -20,6 +21,10 @@
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
 
+-(NSDate*)convertDateToLocale:(NSDate *)date;
+-(NSDate*)convertDateToUTC:(NSDate*)date;
+-(NSDate*)convertDate:(NSDate*)date toTimeZone:(NSTimeZone*)timeZone;
++(id)dateFormatter;
 
 @end
 

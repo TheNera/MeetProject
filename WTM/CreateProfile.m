@@ -50,6 +50,10 @@
     viewPrivacy.hidden = YES;
     
     privacyArray = [[NSArray alloc] initWithObjects:@"Public",@"Private",nil];
+    
+    appDel.mainController.topbarDatasource =  self;
+    appDel.mainController.navigationDelegate = self;
+
 }
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -74,35 +78,41 @@
 #pragma mark - Custom Methods
 - (void) updateUserWithImageFile:(PFFile *)img
 {
-    [profileDetails setObject:txtFName.text forKey:@"FName"];
-    [profileDetails setObject:txtLName.text forKey:@"LName"];
-    [profileDetails setObject:txtZipCode.text forKey:@"ZipCode"];
-    [profileDetails setObject:txtBirthday.text forKey:@"Birthday"];
-    [profileDetails setObject:txtMyRide.text forKey:@"Ride"];
-    [profileDetails setObject:txtPrivacy.text forKey:@"Privacy"];
-    
-    if (img)
-    {
-        [profileDetails setObject:img forKey:@"ProfileImage"];
-    }
-    
-    [profileDetails saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
-     {
-         [[SHKActivityIndicator currentIndicator] hide];
-         
-         if (succeeded)
+    PFQuery *query = [PFQuery queryWithClassName:@"Users"];
+    [query getObjectInBackgroundWithId:profileDetails[@"objectId"] block:^(PFObject *object, NSError *error) {
+        
+        [object setObject:txtFName.text forKey:@"FName"];
+        [object setObject:txtLName.text forKey:@"LName"];
+        [object setObject:txtZipCode.text forKey:@"ZipCode"];
+        [object setObject:txtBirthday.text forKey:@"Birthday"];
+        [object setObject:txtMyRide.text forKey:@"Ride"];
+        [object setObject:txtPrivacy.text forKey:@"Privacy"];
+        
+        if (img)
+        {
+            [object setObject:img forKey:@"ProfileImage"];
+        }
+        
+        [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
          {
-             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Your profile has been updated successfully!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-             [alert show];
-         }
-         else
-         {
-             NSString *errorString = [[error userInfo] objectForKey:@"error"];
-             UIAlertView *errorAlertView = [[UIAlertView alloc] initWithTitle:@"Error" message:errorString delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
-             [errorAlertView show];
-         }
-         
-     }];
+             [[SHKActivityIndicator currentIndicator] hide];
+             
+             if (succeeded)
+             {
+                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Your profile has been updated successfully!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                 [alert show];
+             }
+             else
+             {
+                 NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                 UIAlertView *errorAlertView = [[UIAlertView alloc] initWithTitle:@"Error" message:errorString delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+                 [errorAlertView show];
+             }
+             
+         }];
+    }];
+//    PFObject *updateProfile  = [PFObject objectWithoutDataWithClassName:@"Users" objectId:profileDetails[@"objectId"]];
+    
 }
 - (void) registerUserWithImageFile:(PFFile *)img
 {
@@ -148,9 +158,9 @@
     txtMyRide.text = [profileDetails objectForKey:@"Ride"];
     txtPrivacy.text = [profileDetails objectForKey:@"Privacy"];
     
-    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"ProfileImage"];
-    imgViewProfile.image = [UIImage imageWithData:imageProfile.getData];
-    
+//    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"url"];
+//    imgViewProfile.image = [UIImage imageWithData:imageProfile.getData];
+    [imgViewProfile sd_setImageWithURL:[NSURL URLWithString: [profileDetails objectForKey:@"url"]] placeholderImage:nil];
     [[SHKActivityIndicator currentIndicator] hide];
 }
 #pragma mark - Button Action Methods
@@ -230,7 +240,11 @@
 }
 - (IBAction)privacyDoneClicked:(UIButton *)sender
 {
-    txtPrivacy.text = strPrivacyValue;
+    if (strPrivacyValue) {
+        txtPrivacy.text = strPrivacyValue;
+    }
+    else
+        txtPrivacy.text = [privacyArray firstObject];
     viewPrivacy.hidden = YES;
 }
 - (IBAction)dateDoneClicked:(UIButton *)sender
@@ -337,4 +351,50 @@
 {
     strPrivacyValue = [privacyArray objectAtIndex:row];
 }
+
+
+
+#pragma mark - Main Controller Delegate and Datasource
+
+-(BOOL)mainControllerShouldShowMenu{
+    return YES;
+}
+-(BOOL)mainControllerShouldShowRightButton{
+    return NO;
+}
+-(BOOL)mainControllerShouldShowRightMostButton{
+    return YES;
+}
+
+-(BOOL)mainControllerShouldShowTopbar{
+    return YES;
+}
+
+-(NSString*)mainControllerTitleForScreen{
+    if (isEditMode)
+    {
+        return @"Edit Profile";
+    }
+    else
+    return @"Create Profile";
+}
+
+-(id)mainControllerIconForMenu{
+    return [UIImage imageNamed:@"back_arrow.png"];
+}
+
+-(id)mainControllerIconForRightMostButton{
+    return @"Save";
+}
+
+-(BOOL)mainControllerNavigationMenuShouldToggleSidebar{
+    return NO;
+}
+-(void)mainControllerNavigationRightMostButtonDidTappedWithObject:(id)object{
+    [self btnSaveProfileClicked:nil];
+}
+-(void)mainControllerNavigationMenuButtonDidTappedWithObject:(id)object{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 @end

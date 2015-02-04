@@ -11,7 +11,7 @@
 #import "SelectCategoriesVC.h"
 #import "SelectLocationVC.h"
 #import "MapVC.h"
-@interface AddMeetVC : UIViewController<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,SelectCategoriesDelegate,SelectLocationDelegate>
+@interface AddMeetVC : UIViewController<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,SelectCategoriesDelegate,SelectLocationDelegate,MainControllerNavigationDelegate,MainControllerTopbarDatasource>
 {
     SelectCategoriesVC         *selectCategoriesVC;
     MapVC            *selectLocationVC;

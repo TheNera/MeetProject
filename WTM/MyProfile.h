@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <Parse/Parse.h>
-@interface MyProfile : UIViewController
+@interface MyProfile : UIViewController<MainControllerNavigationDelegate,MainControllerTopbarDatasource>
 {
     __weak IBOutlet UIImageView *profileImageView;
     

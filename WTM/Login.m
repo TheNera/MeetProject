@@ -28,6 +28,9 @@
     
     [txtPassword setValue:[UIColor grayColor]
                forKeyPath:@"_placeholderLabel.textColor"];
+    
+    appDel.mainController.topbarDatasource =  self;
+    appDel.mainController.navigationDelegate = self;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -46,6 +49,7 @@
     if ([segue.identifier isEqualToString:@"PushToMyProfile"])
     {
         MyProfile *profile = segue.destinationViewController;
+       
         profile.profileDetails = userDetails;
     }
 }
@@ -63,7 +67,23 @@
         if (objects.count > 0)
         {
             userDetails = [objects objectAtIndex:0];
+            NSMutableDictionary *aMutDict = [NSMutableDictionary dictionary];
+            [aMutDict setObject:userDetails.objectId forKey:@"objectId"];
+            for (NSString*key in userDetails.allKeys) {
+                if(![key isEqualToString:@"ProfileImage"]){
+                    [aMutDict setObject:userDetails[key] forKey:key];
+                }else{
+                    PFFile *profilePic = [userDetails objectForKey:key];
+                    [aMutDict setObject:profilePic.url forKey:@"url"];
+                }
+            }
             
+
+            appDel.dictUserInfo = aMutDict;
+            [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"isLoggedIn"];
+            [[NSUserDefaults standardUserDefaults]setObject:aMutDict forKey:@"userDetail"];
+            [[NSUserDefaults standardUserDefaults]synchronize];
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"loginStateChange" object:aMutDict];
             NSLog(@"Login Success");
             [self performSegueWithIdentifier:@"PushToMyProfile" sender:nil];
         }
@@ -133,5 +153,17 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+
+
+#pragma mark - Main Controller Delegate and Datasource
+
+-(BOOL)mainControllerShouldShowTopbar{
+    return NO;
+}
+-(NSString*)mainControllerTitleForScreen{
+    return @"";
+}
+
 
 @end

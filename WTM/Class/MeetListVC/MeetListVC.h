@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface MeetListVC : UIViewController<UITableViewDataSource,UITableViewDelegate>
-
 @property (weak, nonatomic) IBOutlet UITableView *tblMeetList;
 
 @end

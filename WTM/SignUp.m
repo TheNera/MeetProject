@@ -25,6 +25,9 @@
              forKeyPath:@"_placeholderLabel.textColor"];
     [txtPassword setValue:[UIColor grayColor]
                forKeyPath:@"_placeholderLabel.textColor"];
+    
+    appDel.mainController.topbarDatasource =  self;
+    appDel.mainController.navigationDelegate = self;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -106,5 +109,15 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+#pragma mark - Main Controller Delegate and Datasource
+
+-(BOOL)mainControllerShouldShowTopbar{
+    return NO;
+}
+-(NSString*)mainControllerTitleForScreen{
+   return @"";
+}
+
 
 @end

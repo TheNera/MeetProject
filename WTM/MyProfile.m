@@ -9,7 +9,7 @@
 #import "MyProfile.h"
 #import "SHKActivityIndicator.h"
 #import "CreateProfile.h"
-
+#import "UIImageView+WebCache.h"
 @interface MyProfile ()
 
 @end
@@ -21,13 +21,24 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    profileDetails  = [[NSUserDefaults standardUserDefaults]objectForKey:@"userDetail"];
+    
     // Do any additional setup after loading the view.
+    appDel.mainController.topbarDatasource = self;
+    appDel.mainController.navigationDelegate = self;
 
+    self.navigationController.navigationBarHidden = YES;
     [[SHKActivityIndicator currentIndicator] displayActivity:@"Loading..."];
     [self setUserDetails];
     [self getAdminUser];
 }
-
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    appDel.mainController.topbarDatasource = self;
+    appDel.mainController.navigationDelegate = self;
+    self.navigationController.navigationBarHidden = YES;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -50,13 +61,14 @@
 }
 - (IBAction)btnEditClicked:(UIButton *)sender
 {
-    [self performSegueWithIdentifier:@"PushToCreateProfile" sender:nil];
+        [self performSegueWithIdentifier:@"PushToCreateProfile" sender:nil];
 }
 #pragma mark - Custom Methods
 - (void) setUserDetails
 {
     PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"ProfileImage"];
-    profileImageView.image = [UIImage imageWithData:imageProfile.getData];
+
+    [profileImageView sd_setImageWithURL:[NSURL URLWithString:profileDetails[@"url"]]];
     profileImageView.clipsToBounds = YES;
     profileImageView.layer.cornerRadius = 100.0;
     profileImageView.layer.borderWidth = 5.0;
@@ -94,5 +106,42 @@
             [errorAlertView show];
         }
     }];
+}
+
+#pragma mark - Main Controller Delegate and Datasource
+
+-(BOOL)mainControllerShouldShowMenu{
+    return YES;
+}
+-(BOOL)mainControllerShouldShowRightButton{
+    return NO;
+}
+-(BOOL)mainControllerShouldShowRightMostButton{
+    return YES;
+}
+
+-(BOOL)mainControllerShouldShowTopbar{
+    return YES;
+}
+
+-(NSString*)mainControllerTitleForScreen{
+    return @"My Profile";
+}
+
+//-(id)mainControllerIconForMenu{
+//    return [UIImage imageNamed:@"back_arrow.png"];
+//}
+-(id)mainControllerIconForRightMostButton{
+    return @"Edit";
+}
+
+-(BOOL)mainControllerNavigationMenuShouldToggleSidebar{
+    return YES;
+}
+-(void)mainControllerNavigationRightMostButtonDidTappedWithObject:(id)object{
+     [self performSegueWithIdentifier:@"PushToCreateProfile" sender:nil];
+}
+-(void)mainControllerNavigationMenuButtonDidTappedWithObject:(id)object{
+    
 }
 @end

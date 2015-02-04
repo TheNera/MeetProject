@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <Parse/Parse.h>
-@interface CreateProfile : UIViewController<UINavigationControllerDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate>
+@interface CreateProfile : UIViewController<UINavigationControllerDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate,MainControllerTopbarDatasource,MainControllerNavigationDelegate>
 {
     __weak IBOutlet UIImageView *imgViewProfile;
     __weak IBOutlet UIScrollView *scrollViewProfile;

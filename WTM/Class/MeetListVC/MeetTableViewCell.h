@@ -19,6 +19,6 @@
 
 @property (weak, nonatomic) IBOutlet UIView *viewDistance;
 
-@property(weak,nonatomic)NSMutableDictionary *meetInfo;
+@property(weak,nonatomic)PFObject *meetInfo;
 @property(assign,nonatomic)CGFloat distance;
 @end

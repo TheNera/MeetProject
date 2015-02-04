@@ -27,7 +27,10 @@
     _txtFieldSearch.strApiKey=kAPIKey;
     _mapView.userInteractionEnabled =  YES;
     mutDicLocation = [NSMutableDictionary dictionary];
-    
+    _txtFieldSearch.layer.cornerRadius = 3.0;
+    _txtFieldSearch.layer.masksToBounds = YES;
+    _txtFieldSearch.leftView =  [[UIView alloc]initWithFrame:CGRectMake(0, 0, 25, _txtFieldSearch.frame.size.height)];
+    _txtFieldSearch.leftViewMode = UITextFieldViewModeAlways;
     // Do any additional setup after loading the view.
 }
 

@@ -8,8 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+typedef enum : NSUInteger {
+    kMeetsFindMeets = 0,
+    kMeetsIAmAttending,
+    kMeetsMyMeets,
+} MeetListType;
 
+@interface ViewController : UIViewController<MainControllerNavigationDelegate,MainControllerTopbarDatasource>
+@property(nonatomic,assign) MeetListType meetListType;
 
 @end
 

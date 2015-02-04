@@ -7,7 +7,7 @@
 //
 
 #import "AddMeetVC.h"
-
+#import "SHKActivityIndicator.h"
 @interface AddMeetVC (){
     UIActionSheet *actionSheet;
     UIAlertController *alertController;
@@ -39,7 +39,11 @@
     //    [_TPScrollView setContentSize:CGSizeMake(self.view.frame.size.width, 697)];
     // Do any additional setup after loading the view.
 }
-
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    appDel.mainController.navigationDelegate = self;
+    appDel.mainController.topbarDatasource = self;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -64,70 +68,7 @@
 
 - (IBAction)btnPostAction:(UIButton *)sender
 {
-    PFObject *PobjMeet = [PFObject objectWithClassName:@"Meets"];
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *nowComponents = [NSDateComponents new];
-    if (![self validateFields]) {
-        return;
-    }
     
-    PobjMeet [@"title"] = _txtTitle.text;
-    PobjMeet[@"description"] = _txtVwDescription.text;
-    PobjMeet[@"startDate"] = startDate;
-    PobjMeet[@"categories"] = _txtDateTime.text;
-    
-    if (_txtEndDate.text.length > 0)
-    {
-        PobjMeet[@"endDate"] = endDate;
-    }
-    else
-    {
-        [calendar setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en-US"]];
-        
-        
-        nowComponents.day = 1;
-        
-        NSDate *nextdate = [calendar dateByAddingComponents:nowComponents
-                                                     toDate: [NSDate date]
-                                                    options:0];
-        nextdate =  [calendar dateBySettingHour:0 minute:0 second:0 ofDate:nextdate options:0];
-        PobjMeet[@"endDate"] = nextdate;
-        
-    }
-    if (mutDictLocationInfo)
-    {
-        PobjMeet[@"location"] = mutDictLocationInfo[@"location"];
-        PobjMeet[@"address"] = mutDictLocationInfo[@"address"];
-    }
-    
-    nowComponents.day = 1;
-    NSDate *nextdate = [calendar dateByAddingComponents:nowComponents
-                                                 toDate: startDate
-                                                options:0];
-    PFQuery *query = [PFQuery queryWithClassName:@"Meets"];
-    [query whereKey:@"address" equalTo:_lblLocation.text];
-    [query whereKey:@"startDate"  greaterThan:startDate];
-    
-    [query whereKey:@"startDate"lessThan:nextdate];
-    if ([query findObjects].count == 0)
-    {
-        if (_imgCoverPhoto.image) {
-            NSData *aDataJpeg = UIImageJPEGRepresentation(_imgCoverPhoto.image, 0.7);
-            NSString *aStrFileName = [[self randomStringWithLength:7] stringByAppendingString:@".jpg"];
-            
-            PFFile *imageFile = [PFFile fileWithName:aStrFileName   data:aDataJpeg];
-            if ([PFUser currentUser]) {
-                PobjMeet[@"user"] = [PFUser currentUser];
-            }
-            [imageFile saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-                [self uploadDataOnParse:imageFile.url withParseObject:PobjMeet];
-            }];
-        }
-        else
-            [self uploadDataOnParse:nil withParseObject:PobjMeet];
-    }
-    else
-        [appDel showAlertwithMessage:@"There is already a meet added to this location"];
 }
 
 
@@ -139,9 +80,11 @@
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
     [dateFormatter setDateFormat:@"MMMM d, yyyy 'at' h:mm a"];
+    
     if ([_txtDateTime isEditing])
     {
         _txtDateTime.text =[dateFormatter stringFromDate: _datePicker.date];
+        
         startDate = _datePicker.date;
     }
     else
@@ -162,7 +105,9 @@
     [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
         if (succeeded) {
             [appDel showAlertwithMessage:@"Posted Successfully"];
+            [self.navigationController popViewControllerAnimated:YES];
         }
+        [[SHKActivityIndicator currentIndicator]hide];
     }];
 }
 #pragma mark Fields validation
@@ -281,6 +226,7 @@ NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345
 {
     UIImage *imgInfo = info[UIImagePickerControllerOriginalImage];
     _imgCoverPhoto.image = imgInfo;
+    _imgCoverPhoto.contentMode = UIViewContentModeScaleAspectFill;
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 -(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -339,5 +285,107 @@ NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345
     [self presentViewController:selectCategoriesVC animated:YES completion:nil];
 }
 
+#pragma mark - MainController Delegates
+-(BOOL)mainControllerShouldShowTopbar{
+    return YES;
+}
+-(BOOL)mainControllerShouldShowMenu{
+    return YES;
+}
+-(BOOL)mainControllerShouldShowRightMostButton{
+    return YES;
+}
+-(BOOL)mainControllerShouldShowRightButton{
+    return NO;
+}
 
+-(BOOL)mainControllerNavigationMenuShouldToggleSidebar{
+    return NO;
+}
+-(id)mainControllerIconForMenu{
+    return @"Cancel";
+}
+-(id)mainControllerIconForRightMostButton{
+    return @"Post";
+}
+-(NSString*)mainControllerTitleForScreen{
+    return @"Create Meet";
+}
+-(void)mainControllerNavigationMenuButtonDidTappedWithObject:(id)object{
+    [self.view endEditing:YES];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+-(void)mainControllerNavigationRightMostButtonDidTappedWithObject:(id)object{
+    [self postMeet];
+}
+
+-(void)postMeet{
+    PFObject *PobjMeet = [PFObject objectWithClassName:@"Meets"];
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *nowComponents = [NSDateComponents new];
+    if (![self validateFields]) {
+        return;
+    }
+
+    [[SHKActivityIndicator currentIndicator] displayActivity:@"Posting..."];
+    startDate = [appDel convertDateToUTC:startDate];
+    PobjMeet [@"title"] = _txtTitle.text;
+    PobjMeet[@"description"] = _txtVwDescription.text;
+    PobjMeet[@"startDate"] = startDate;
+    PobjMeet[@"categories"] = _txtDateTime.text;
+    
+    if (_txtEndDate.text.length > 0)
+    {
+        endDate = [appDel convertDateToUTC:endDate];
+        PobjMeet[@"endDate"] = endDate;
+    }
+    else
+    {
+        [calendar setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en-US"]];
+        nowComponents.day = 1;
+        
+        NSDate *nextdate = [calendar dateByAddingComponents:nowComponents
+                                                     toDate: startDate
+                                                    options:0];
+        nextdate =  [calendar dateBySettingHour:0 minute:0 second:0 ofDate:nextdate options:0];
+        PobjMeet[@"endDate"] = nextdate;
+        
+    }
+    if (mutDictLocationInfo)
+    {
+        PobjMeet[@"location"] = mutDictLocationInfo[@"location"];
+        PobjMeet[@"address"] = mutDictLocationInfo[@"address"];
+    }
+    
+    nowComponents.day = 1;
+    NSDate *nextdate = [calendar dateByAddingComponents:nowComponents
+                                                 toDate: startDate
+                                                options:0];
+    PFQuery *query = [PFQuery queryWithClassName:@"Meets"];
+    [query whereKey:@"address" equalTo:_lblLocation.text];
+    [query whereKey:@"startDate"  greaterThanOrEqualTo:startDate];
+    
+    [query whereKey:@"startDate"lessThanOrEqualTo:nextdate];
+    if ([query findObjects].count == 0)
+    {
+        if (_imgCoverPhoto.image) {
+            NSData *aDataJpeg = UIImageJPEGRepresentation(_imgCoverPhoto.image, 0.7);
+            NSString *aStrFileName = [[self randomStringWithLength:7] stringByAppendingString:@".jpg"];
+            
+            PFFile *imageFile = [PFFile fileWithName:aStrFileName   data:aDataJpeg];
+            if ([PFUser currentUser]) {
+                PobjMeet[@"user"] = [PFUser currentUser];
+            }
+            [imageFile saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+                [self uploadDataOnParse:imageFile.url withParseObject:PobjMeet];
+            }];
+        }
+        else
+            [self uploadDataOnParse:nil withParseObject:PobjMeet];
+    }
+    else{
+        [appDel showAlertwithMessage:@"There is already a meet added to this location"];
+        [[SHKActivityIndicator currentIndicator]hide];
+    }
+}
 @end

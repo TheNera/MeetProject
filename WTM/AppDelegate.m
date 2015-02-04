@@ -26,6 +26,10 @@
     // Set Application Id to parse library
     [Parse setApplicationId:kParse_AppId clientKey:kParse_clientId];
     [GMSServices provideAPIKey:@"AIzaSyDx76torLMSXSGUYxUysD1TQ_mLi4PJjLY"];
+    [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"userDetail"];
+[[NSUserDefaults standardUserDefaults]removeObjectForKey:@"isLoggedIn"];    
+    [[NSUserDefaults standardUserDefaults]synchronize];
+//    _dictUserInfo = [[NSUserDefaults standardUserDefaults]objectForKey:@"userDetail"];
     
     return YES;
 }
@@ -138,5 +142,65 @@
         }
     }
 }
+
+
+#pragma mark - Date Conversion
+//===================================================================================
+// Convert UTC Date to Locale Date
+//===================================================================================
+-(NSDate*)convertDateToLocale:(NSDate *)date{
+    
+    NSTimeZone *currentTimeZone = [NSTimeZone localTimeZone];
+    NSTimeZone *utcTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+    
+    NSInteger currentGMTOffset = [currentTimeZone secondsFromGMTForDate:date];
+    NSInteger gmtOffset = [utcTimeZone secondsFromGMTForDate:date];
+    NSTimeInterval gmtInterval = currentGMTOffset - gmtOffset;
+    
+    NSDate *destinationDate =[[NSDate alloc] initWithTimeInterval:gmtInterval sinceDate:date];
+    return destinationDate;
+    
+}
+static NSDateFormatter *sharedObject=nil;
++(id)dateFormatter{
+    if(!sharedObject){
+        sharedObject = [[NSDateFormatter alloc]init];
+           [sharedObject setDateFormat:@"MMMM d, yyyy 'at' h:mm a"];
+    }
+    return sharedObject;
+}
+
+
+//===================================================================================
+// Convert Locale Date to UTC
+//===================================================================================
+-(NSDate*)convertDateToUTC:(NSDate*)date{
+    
+    NSTimeZone *currentTimeZone = [NSTimeZone localTimeZone];
+    NSTimeZone *utcTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+    
+    NSInteger currentGMTOffset = [currentTimeZone secondsFromGMTForDate:date];
+    NSInteger gmtOffset = [utcTimeZone secondsFromGMTForDate:date];
+    NSTimeInterval gmtInterval = gmtOffset-currentGMTOffset;
+    
+    NSDate *destinationDate = [[NSDate alloc] initWithTimeInterval:gmtInterval sinceDate:date];
+    
+    return destinationDate;
+}
+
+
+-(NSDate*)convertDate:(NSDate*)date toTimeZone:(NSTimeZone*)timeZone{
+    
+    NSTimeZone *currentTimeZone = timeZone;
+    NSTimeZone *utcTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+    
+    NSInteger currentGMTOffset = [currentTimeZone secondsFromGMTForDate:date];
+    NSInteger gmtOffset = [utcTimeZone secondsFromGMTForDate:date];
+    NSTimeInterval gmtInterval = currentGMTOffset - gmtOffset;
+    
+    NSDate *destinationDate =[[NSDate alloc] initWithTimeInterval:gmtInterval sinceDate:date];
+    return destinationDate;
+}
+
 
 @end
