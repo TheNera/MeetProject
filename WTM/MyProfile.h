@@ -16,8 +16,9 @@
     __weak IBOutlet UILabel *lblUserAddress;
     __weak IBOutlet UILabel *lblUserName;
     __weak IBOutlet UILabel *lblUserType;
+    __weak IBOutlet UILabel *lblAttenedCount;
 }
 
-@property (nonatomic, strong) PFObject *profileDetails;
+@property (nonatomic, strong) PFUser *profileDetails;
 
 @end

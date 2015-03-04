@@ -26,6 +26,11 @@
     [txtPassword setValue:[UIColor grayColor]
                forKeyPath:@"_placeholderLabel.textColor"];
     
+
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
     appDel.mainController.topbarDatasource =  self;
     appDel.mainController.navigationDelegate = self;
 }
@@ -77,11 +82,23 @@
     {
         if ([Utility validateEmail:strUserName])
         {
-            [self performSegueWithIdentifier:@"PushToCreateProfile" sender:nil];
+
+            PFQuery *aQuery = [PFUser query];
+            [aQuery whereKey:@"email" equalTo:strUserName];
+            
+            [aQuery countObjectsInBackgroundWithBlock:^(int number, NSError *error) {
+                if(number==0){
+                    [self performSegueWithIdentifier:@"PushToCreateProfile" sender:nil];
+                }else{
+                    [appDel showAlertwithMessage:@"This email is already registered."];
+                }
+            }];
+            
+
         }
         else
         {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Please enter valid email id" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Please enter valid email id." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [alert show];;
         }
     }

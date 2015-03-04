@@ -21,7 +21,9 @@
     __weak IBOutlet UIView *viewBirthday;
     NSDate *dob;
     __weak IBOutlet UIView *viewPrivacy;
+    __weak IBOutlet UIView *viewFaded;
     
+    __weak IBOutlet UIButton *btnProfileImage;
     NSArray *privacyArray;
     NSString *strPrivacyValue;
 }
@@ -29,5 +31,5 @@
 @property (nonatomic, strong) NSString *strEmailId;
 @property (nonatomic, strong) NSString *strPassword;
 @property (nonatomic, readwrite) BOOL isEditMode;
-@property (nonatomic, strong) PFObject *profileDetails;
+@property (nonatomic, strong) PFUser *profileDetails;
 @end

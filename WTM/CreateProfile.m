@@ -26,26 +26,29 @@
     // Do any additional setup after loading the view.
     
     // Set Testfield placeholder color
+    
     [txtFName setValue:[UIColor blackColor]
-              forKeyPath:@"_placeholderLabel.textColor"];
+            forKeyPath:@"_placeholderLabel.textColor"];
     [txtLName setValue:[UIColor blackColor]
-               forKeyPath:@"_placeholderLabel.textColor"];
+            forKeyPath:@"_placeholderLabel.textColor"];
     [txtZipCode setValue:[UIColor blackColor]
-            forKeyPath:@"_placeholderLabel.textColor"];
+              forKeyPath:@"_placeholderLabel.textColor"];
     [txtBirthday setValue:[UIColor blackColor]
-            forKeyPath:@"_placeholderLabel.textColor"];
+               forKeyPath:@"_placeholderLabel.textColor"];
     [txtMyRide setValue:[UIColor blackColor]
-            forKeyPath:@"_placeholderLabel.textColor"];
+             forKeyPath:@"_placeholderLabel.textColor"];
     [txtPrivacy setValue:[UIColor blackColor]
-            forKeyPath:@"_placeholderLabel.textColor"];
+              forKeyPath:@"_placeholderLabel.textColor"];
     
     if (isEditMode)
     {
         [[SHKActivityIndicator currentIndicator] displayActivity:@"Loading..."];
         [self setUserDetails];
+        [btnProfileImage setImage:[UIImage imageNamed:@"banner_cover_image_icon.png"] forState:UIControlStateNormal];
     }
-    
-    scrollViewProfile.contentSize = CGSizeMake(310, 960);
+    else
+        [btnProfileImage setImage:[UIImage imageNamed:@"takepicture.png"] forState:UIControlStateNormal];
+    scrollViewProfile.contentSize = CGSizeMake(310, 730.0);
     viewBirthday.hidden = YES;
     viewPrivacy.hidden = YES;
     
@@ -53,7 +56,7 @@
     
     appDel.mainController.topbarDatasource =  self;
     appDel.mainController.navigationDelegate = self;
-
+    btnProfileImage.imageView.contentMode = UIViewContentModeScaleAspectFit;
 }
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -66,59 +69,57 @@
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 #pragma mark - Custom Methods
 - (void) updateUserWithImageFile:(PFFile *)img
 {
-    PFQuery *query = [PFQuery queryWithClassName:@"Users"];
-    [query getObjectInBackgroundWithId:profileDetails[@"objectId"] block:^(PFObject *object, NSError *error) {
-        
-        [object setObject:txtFName.text forKey:@"FName"];
-        [object setObject:txtLName.text forKey:@"LName"];
-        [object setObject:txtZipCode.text forKey:@"ZipCode"];
-        [object setObject:txtBirthday.text forKey:@"Birthday"];
-        [object setObject:txtMyRide.text forKey:@"Ride"];
-        [object setObject:txtPrivacy.text forKey:@"Privacy"];
-        
-        if (img)
-        {
-            [object setObject:img forKey:@"ProfileImage"];
-        }
-        
-        [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
-         {
-             [[SHKActivityIndicator currentIndicator] hide];
-             
-             if (succeeded)
-             {
-                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Your profile has been updated successfully!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                 [alert show];
-             }
-             else
-             {
-                 NSString *errorString = [[error userInfo] objectForKey:@"error"];
-                 UIAlertView *errorAlertView = [[UIAlertView alloc] initWithTitle:@"Error" message:errorString delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
-                 [errorAlertView show];
-             }
-             
-         }];
-    }];
-//    PFObject *updateProfile  = [PFObject objectWithoutDataWithClassName:@"Users" objectId:profileDetails[@"objectId"]];
+    PFUser *user = [PFUser currentUser];
+    [user setObject:txtFName.text forKey:@"FName"];
+    [user setObject:txtLName.text forKey:@"LName"];
+    [user setObject:txtZipCode.text forKey:@"ZipCode"];
+    [user setObject:txtBirthday.text forKey:@"Birthday"];
+    [user setObject:txtMyRide.text forKey:@"Ride"];
+    [user setObject:txtPrivacy.text forKey:@"Privacy"];
     
+    if (img)
+    {
+        [user setObject:img forKey:@"ProfileImage"];
+        [user setObject:img.url forKey:@"ProfileImageUrl"];
+    }
+    
+    [user saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
+     {
+         [[SHKActivityIndicator currentIndicator] hide];
+         
+         if (succeeded)
+         {
+             [[NSNotificationCenter defaultCenter]postNotificationName:@"loginStateChange" object:nil];
+             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"Your profile has been updated successfully!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+             [alert show];
+         }
+         else
+         {
+             NSString *errorString = [[error userInfo] objectForKey:@"error"];
+             UIAlertView *errorAlertView = [[UIAlertView alloc] initWithTitle:@"Error" message:errorString delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+             [errorAlertView show];
+         }
+         
+     }];
 }
 - (void) registerUserWithImageFile:(PFFile *)img
 {
-    PFObject *newUser = [PFObject objectWithClassName:@"Users"];
-    [newUser setObject:strEmailId forKey:@"EmailId"];
-    [newUser setObject:strPassword forKey:@"Password"];
+    PFUser *newUser = [PFUser user];
+    newUser.username = strEmailId;
+    newUser.email =strEmailId;
+    newUser.password = strPassword;
     [newUser setObject:txtFName.text forKey:@"FName"];
     [newUser setObject:txtLName.text forKey:@"LName"];
     [newUser setObject:txtZipCode.text forKey:@"ZipCode"];
@@ -129,9 +130,10 @@
     if (img)
     {
         [newUser setObject:img forKey:@"ProfileImage"];
+        [newUser setObject:img.url forKey:@"ProfileImageUrl"];
     }
     
-    [newUser saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
+    [newUser signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error)
      {
          [[SHKActivityIndicator currentIndicator] hide];
          
@@ -158,9 +160,9 @@
     txtMyRide.text = [profileDetails objectForKey:@"Ride"];
     txtPrivacy.text = [profileDetails objectForKey:@"Privacy"];
     
-//    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"url"];
-//    imgViewProfile.image = [UIImage imageWithData:imageProfile.getData];
-    [imgViewProfile sd_setImageWithURL:[NSURL URLWithString: [profileDetails objectForKey:@"url"]] placeholderImage:nil];
+    //    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"url"];
+    //    imgViewProfile.image = [UIImage imageWithData:imageProfile.getData];
+    [imgViewProfile sd_setImageWithURL:[NSURL URLWithString: [profileDetails objectForKey:@"ProfileImageUrl"]] placeholderImage:nil];
     [[SHKActivityIndicator currentIndicator] hide];
 }
 #pragma mark - Button Action Methods
@@ -232,11 +234,13 @@
 {
     [self.view endEditing:YES];
     viewBirthday.hidden = NO;
+    viewFaded.hidden = NO;
 }
 - (IBAction)btnPrivacyClicked:(UIButton *)sender
 {
     [self.view endEditing:YES];
     viewPrivacy.hidden = NO;
+    viewFaded.hidden = NO;
 }
 - (IBAction)privacyDoneClicked:(UIButton *)sender
 {
@@ -245,14 +249,14 @@
     }
     else
         txtPrivacy.text = [privacyArray firstObject];
-    viewPrivacy.hidden = YES;
+   viewFaded.hidden = viewPrivacy.hidden = YES;
 }
 - (IBAction)dateDoneClicked:(UIButton *)sender
 {
-    viewBirthday.hidden = YES;
+    viewFaded.hidden = viewBirthday.hidden = YES;
     
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd-MM-yyyy"];
+    [dateFormatter setDateFormat:@"MMMM dd, yyyy"];
     
     txtBirthday.text = [dateFormatter stringFromDate:dob];
 }
@@ -260,11 +264,13 @@
 {
     viewPrivacy.hidden = YES;
     viewBirthday.hidden = YES;
+    viewFaded.hidden = YES;
 }
 - (IBAction)dateCancelClicked:(UIButton *)sender
 {
     viewBirthday.hidden = YES;
     viewPrivacy.hidden = YES;
+    viewFaded.hidden = YES;
 }
 - (IBAction)dateSelected:(UIDatePicker *)sender
 {
@@ -289,7 +295,7 @@
         if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
         {
             UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
-            
+            imagePicker.allowsEditing = YES;
             imagePicker.delegate = self;
             imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
             [self presentViewController:imagePicker animated:YES completion:nil];
@@ -298,6 +304,7 @@
         {
             UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
             imagePicker.delegate = self;
+            imagePicker.allowsEditing = YES;
             imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
             [self presentViewController:imagePicker animated:YES completion:nil];
         }
@@ -306,6 +313,7 @@
     {
         UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
         imagePicker.delegate = self;
+        imagePicker.allowsEditing = YES;
         imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
         [self presentViewController:imagePicker animated:YES completion:nil];
     }
@@ -314,6 +322,7 @@
 #pragma mark - Image Picker Delegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo
 {
+    [btnProfileImage setImage:nil forState:UIControlStateNormal];
     [picker dismissViewControllerAnimated:YES completion:^
      {
          imgViewProfile.image = image;
@@ -376,7 +385,7 @@
         return @"Edit Profile";
     }
     else
-    return @"Create Profile";
+        return @"Create Profile";
 }
 
 -(id)mainControllerIconForMenu{

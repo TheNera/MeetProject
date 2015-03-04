@@ -2,13 +2,13 @@
 //  MainController.h
 //  WTM
 //
-//  Created by Jwalin Shah on 01/02/15.
+//   01/02/15.
 //
 //
 
 #import "MVPrespectiveSidebar.h"
 #import "DashboardVC.h"
-
+#import "PhotoStreamVC.h"
 #define kNotificationMenuTapped @"menu"
 #define kNotificationRightMostTapped @"rightMost"
 #define kNotificationRight @"right"
@@ -29,13 +29,21 @@
 -(id)mainControllerIconForMenu;
 -(id)mainControllerIconForRightButton;
 -(id)mainControllerIconForRightMostButton;
+-(BOOL)mainControllerTopbarShouldTransperant;
 @end
 
-@interface MainController : MVPrespectiveSidebar<DashboardDelegate>
+
+
+@interface MainController : MVPrespectiveSidebar<DashboardDelegate>{
+    BOOL isTopbarTransperant;
+}
 @property(nonatomic,strong)id<MainControllerNavigationDelegate>navigationDelegate;
 @property(nonatomic,strong)id<MainControllerTopbarDatasource>topbarDatasource;
 @property(nonatomic,strong)IBOutlet UILabel *lblTitle;
 @property(nonatomic,strong)IBOutlet UIButton *btnMenu;
 @property(nonatomic,strong)IBOutlet UIButton *btnRight;
 @property(nonatomic,strong)IBOutlet UIButton *btnRightMost;
+
+-(void)showImagePreviewOverlay:(PFObject*)info cellObject:(CGRect)cellRect delegate:(id)delegate;
+-(void)showMeetDetailScreenWithObject:(NSDictionary*)aDictMeetInfo;
 @end

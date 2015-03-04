@@ -86,7 +86,7 @@
         aMarker.draggable = YES;
         aMarker.groundAnchor = CGPointMake(0.43, 1.0);
         aMarker.map = _mapView;
-        aMarker.icon=[UIImage imageNamed:@"map_shadow_pin"];
+        aMarker.icon=[UIImage imageNamed:@"pin_icon.png"];
     }
     aMarker.position = coordinate;
     

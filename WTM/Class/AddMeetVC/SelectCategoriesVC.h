@@ -14,6 +14,7 @@
 @end
 
 @interface SelectCategoriesVC : UIViewController<UITableViewDataSource,UITableViewDelegate>
+@property (nonatomic,strong)NSString *strSelectedCategory;
 @property(nonatomic,strong)NSMutableArray *mutArrSelectedCategories;
 @property(nonatomic,strong)id<SelectCategoriesDelegate>delegate;
 @property (weak, nonatomic) IBOutlet UITableView *tblCategories;

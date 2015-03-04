@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface MeetTableViewCell : UITableViewCell
+#import "MGSwipeButton.h"
+#import "MGSwipeTableCell.h"
+@interface MeetTableViewCell : MGSwipeTableCell
 
 @property (weak, nonatomic) IBOutlet UIImageView *imgViewCover;
 @property (weak, nonatomic) IBOutlet UILabel *lblTitle;

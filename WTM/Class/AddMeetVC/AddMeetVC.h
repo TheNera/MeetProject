@@ -11,7 +11,11 @@
 #import "SelectCategoriesVC.h"
 #import "SelectLocationVC.h"
 #import "MapVC.h"
-@interface AddMeetVC : UIViewController<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,SelectCategoriesDelegate,SelectLocationDelegate,MainControllerNavigationDelegate,MainControllerTopbarDatasource>
+
+@protocol EditMeetDelegate <NSObject>
+-(void)meetDidEditedWithNewData:(PFObject*)object;
+@end
+@interface AddMeetVC : UIViewController<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,SelectCategoriesDelegate,SelectLocationDelegate,MainControllerNavigationDelegate,MainControllerTopbarDatasource,UIAlertViewDelegate>
 {
     SelectCategoriesVC         *selectCategoriesVC;
     MapVC            *selectLocationVC;
@@ -20,5 +24,6 @@
     NSMutableDictionary       *mutDictLocationInfo;
     NSMutableArray              *mutArrCategories;
 }
-
+@property (nonatomic,strong)PFObject *editMeetObject;
+@property (nonatomic,strong)id<EditMeetDelegate>delegate;
 @end

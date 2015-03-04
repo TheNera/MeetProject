@@ -19,8 +19,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     mutArrAllCategories = [NSMutableArray array];
-    for (int i=0; i<10; i++) {
+    NSArray *aArrOfSeletedCategory = [_strSelectedCategory componentsSeparatedByString:@","];
+    
+    for (int i=0; i<10; i++)
+    {
         NSMutableDictionary *aMutDict =[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Category %d",i+1],@"categoryName",@"false",@"isSelected", nil];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self == %@",aMutDict[@"categoryName"]];
+        NSArray *arOfilter = [aArrOfSeletedCategory filteredArrayUsingPredicate:predicate];
+        if (arOfilter.count>0) {
+            [aMutDict setObject:@"true" forKey:@"isSelected"];
+        }
         [mutArrAllCategories addObject:aMutDict];
     }
     

@@ -57,35 +57,19 @@
 #pragma mark - Custom Methods
 - (void) validateUSerWithEmaiId:(NSString *)strEmail password:(NSString *)strPassword
 {
-    PFQuery *query = [PFQuery queryWithClassName:@"Users"];
-    [query whereKey:@"EmailId" equalTo:strEmail];
-    [query whereKey:@"Password" equalTo:strPassword];
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error)
-    {
+    [PFUser logInWithUsernameInBackground:strEmail password:strPassword block:^(PFUser *user, NSError *error) {
         [[SHKActivityIndicator currentIndicator] hide];
         
-        if (objects.count > 0)
+        if (user)
         {
-            userDetails = [objects objectAtIndex:0];
-            NSMutableDictionary *aMutDict = [NSMutableDictionary dictionary];
-            [aMutDict setObject:userDetails.objectId forKey:@"objectId"];
-            for (NSString*key in userDetails.allKeys) {
-                if(![key isEqualToString:@"ProfileImage"]){
-                    [aMutDict setObject:userDetails[key] forKey:key];
-                }else{
-                    PFFile *profilePic = [userDetails objectForKey:key];
-                    [aMutDict setObject:profilePic.url forKey:@"url"];
-                }
-            }
-            
+            userDetails = user;
 
-            appDel.dictUserInfo = aMutDict;
             [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"isLoggedIn"];
-            [[NSUserDefaults standardUserDefaults]setObject:aMutDict forKey:@"userDetail"];
             [[NSUserDefaults standardUserDefaults]synchronize];
-            [[NSNotificationCenter defaultCenter]postNotificationName:@"loginStateChange" object:aMutDict];
-            NSLog(@"Login Success");
-            [self performSegueWithIdentifier:@"PushToMyProfile" sender:nil];
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"loginStateChange" object:user];
+
+            [self.navigationController popToRootViewControllerAnimated:YES];
+//            [self performSegueWithIdentifier:@"PushToMyProfile" sender:nil];
         }
         else
         {
@@ -94,6 +78,45 @@
         }
     }];
 }
+//- (void) validateUSerWithEmaiId:(NSString *)strEmail password:(NSString *)strPassword
+//{
+//    PFQuery *query = [PFQuery queryWithClassName:@"Users"];
+//    [query whereKey:@"EmailId" equalTo:strEmail];
+//    [query whereKey:@"Password" equalTo:strPassword];
+//    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error)
+//    {
+//        [[SHKActivityIndicator currentIndicator] hide];
+//        
+//        if (objects.count > 0)
+//        {
+//            userDetails = [objects objectAtIndex:0];
+//            NSMutableDictionary *aMutDict = [NSMutableDictionary dictionary];
+//            [aMutDict setObject:userDetails.objectId forKey:@"objectId"];
+//            for (NSString*key in userDetails.allKeys) {
+//                if(![key isEqualToString:@"ProfileImage"]){
+//                    [aMutDict setObject:userDetails[key] forKey:key];
+//                }else{
+//                    PFFile *profilePic = [userDetails objectForKey:key];
+//                    [aMutDict setObject:profilePic.url forKey:@"url"];
+//                }
+//            }
+//            
+//
+//            appDel.dictUserInfo = aMutDict;
+//            [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"isLoggedIn"];
+//            [[NSUserDefaults standardUserDefaults]setObject:aMutDict forKey:@"userDetail"];
+//            [[NSUserDefaults standardUserDefaults]synchronize];
+//            [[NSNotificationCenter defaultCenter]postNotificationName:@"loginStateChange" object:aMutDict];
+//            NSLog(@"Login Success");
+//            [self performSegueWithIdentifier:@"PushToMyProfile" sender:nil];
+//        }
+//        else
+//        {
+//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Incorrect Email Id or Password. Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//            [alert show];
+//        }
+//    }];
+//}
 #pragma mark - Button Action Methods
 - (IBAction)btnSignInclicked:(UIButton *)sender
 {

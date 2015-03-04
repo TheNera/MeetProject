@@ -14,6 +14,6 @@
     __weak IBOutlet UITextField *txtEmailId;
     __weak IBOutlet UITextField *txtPassword;
     
-     PFObject *userDetails;
+     PFUser *userDetails;
 }
 @end

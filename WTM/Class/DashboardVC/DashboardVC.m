@@ -2,7 +2,7 @@
 //  DashboardVC.m
 //  WTM
 //
-//  Created by Jwalin Shah on 31/01/15.
+//   31/01/15.
 //
 //
 
@@ -30,7 +30,7 @@
     [mutArrDatasource addObject:[self dictForTitle:@"Settings" imageName:@"setting_icon.png"]];
     self.view.backgroundColor = [UIColor clearColor];
     
-    if(appDel.dictUserInfo){
+    if([PFUser currentUser]){
         [self setProfileDetail];
     }else{
             appDel.mainController.btnMenu.hidden = YES;
@@ -84,8 +84,9 @@
 }
 -(void)setProfileDetail{
     appDel.mainController.btnMenu.hidden = NO;
-    _lblUserName.text = appDel.dictUserInfo[@"FName"];
-    [_imgViewProfilePic sd_setImageWithURL:[NSURL URLWithString:appDel.dictUserInfo[@"url"]]];
+    PFUser *user = [PFUser currentUser];
+    _lblUserName.text = user[@"FName"];
+    [_imgViewProfilePic sd_setImageWithURL:[NSURL URLWithString:user[@"ProfileImageUrl"]]];
 }
 
 @end

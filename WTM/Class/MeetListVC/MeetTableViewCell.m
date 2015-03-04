@@ -21,13 +21,19 @@
 
 @implementation MeetTableViewCell
 
-
+-(void)awakeFromNib{
+    [super awakeFromNib];
+   
+    
+}
 -(void)setMeetInfo:(PFObject *)meetInfo{
     _meetInfo = meetInfo;
     
     _lblTitle.text = _meetInfo[kKeyTitle];
     _lblLocation.text =_meetInfo[kKeyLocation];
-    _lblDate.text =[[ AppDelegate dateFormatter ] stringFromDate:_meetInfo[kKeyDate]];
+    _lblDate.text =[ appDel getDayNotation:_meetInfo[kKeyDate] withDate:YES];
+    _lblTitle.font = [UIFont fontWithName:@"DINPro-Bold" size:17.0];
+    _lblLocation.font = [UIFont fontWithName:@"DINPro-Medium" size:14.0];
     [_imgViewCover sd_setImageWithURL:[NSURL URLWithString:_meetInfo[kKeyCoverPage]] placeholderImage:nil];
     [self checkForDistanceAndShowIfAvailable:meetInfo];
 }

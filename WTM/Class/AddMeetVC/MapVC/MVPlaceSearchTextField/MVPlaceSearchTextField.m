@@ -34,13 +34,13 @@
     self.autoCompleteRowHeight=35;
     self.autoCompleteTableCellTextColor=[UIColor colorWithWhite:0.131 alpha:1.000];
     self.autoCompleteTableFrame=CGRectMake(6, 95, 308, 100);
-
-    self.autoCompleteBoldFontName=@"Helvetica";
-    self.autoCompleteRegularFontName=@"Helvetica";
+    self.autoCompleteBoldFontName=@"DINPro-Regular";
+    self.autoCompleteRegularFontName=@"DINPro-Regular";
     self.autoCompleteFontSize=14;
     self.autoCompleteTableBorderWidth=0.0;
     self.showTextFieldDropShadowWhenAutoCompleteTableIsOpen=NO;
     self.autoCompleteShouldHideOnSelection=YES;
+    self.autoCompleteShouldHideClosingKeyboard = YES;
     self.maximumNumberOfAutoCompleteRows= 5;
     
 }

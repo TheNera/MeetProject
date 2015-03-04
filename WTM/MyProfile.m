@@ -22,19 +22,21 @@
 {
     [super viewDidLoad];
     
-    profileDetails  = [[NSUserDefaults standardUserDefaults]objectForKey:@"userDetail"];
-    
-    // Do any additional setup after loading the view.
+//    profileDetails  = [[NSUserDefaults standardUserDefaults]objectForKey:@"userDetail"];
+        // Do any additional setup after loading the view.
     appDel.mainController.topbarDatasource = self;
     appDel.mainController.navigationDelegate = self;
 
     self.navigationController.navigationBarHidden = YES;
     [[SHKActivityIndicator currentIndicator] displayActivity:@"Loading..."];
+    [self getNoOfMeetsAttended];
+    }
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    profileDetails = [PFUser currentUser];
     [self setUserDetails];
     [self getAdminUser];
-}
--(void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
     appDel.mainController.topbarDatasource = self;
     appDel.mainController.navigationDelegate = self;
     self.navigationController.navigationBarHidden = YES;
@@ -66,11 +68,11 @@
 #pragma mark - Custom Methods
 - (void) setUserDetails
 {
-    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"ProfileImage"];
+//    PFFile *imageProfile = (PFFile *)[profileDetails objectForKey:@"ProfileImage"];
 
-    [profileImageView sd_setImageWithURL:[NSURL URLWithString:profileDetails[@"url"]]];
+    [profileImageView sd_setImageWithURL:[NSURL URLWithString:profileDetails[@"ProfileImageUrl"]]];
     profileImageView.clipsToBounds = YES;
-    profileImageView.layer.cornerRadius = 100.0;
+    profileImageView.layer.cornerRadius = profileImageView.frame.size.width/2.0;
     profileImageView.layer.borderWidth = 5.0;
     profileImageView.layer.borderColor = [[UIColor whiteColor] CGColor];
     
@@ -83,7 +85,7 @@
 
 - (void) getAdminUser
 {
-    PFQuery *query = [PFQuery queryWithClassName:@"Users"];
+    PFQuery *query = [PFQuery queryWithClassName:@"User"];
     [query orderByDescending:@"createdAt"];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error)
     {
@@ -105,6 +107,15 @@
             UIAlertView *errorAlertView = [[UIAlertView alloc] initWithTitle:@"Error" message:errorString delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
             [errorAlertView show];
         }
+    }];
+}
+
+-(void)getNoOfMeetsAttended{
+    
+    PFQuery *aQuery = [PFQuery queryWithClassName:@"Attendees"];
+    [aQuery whereKey:@"userId" equalTo:[PFUser currentUser].objectId];
+    [aQuery countObjectsInBackgroundWithBlock:^(int number, NSError *error) {
+        lblAttenedCount.text = [NSString stringWithFormat:@"Attended %d meets",number];
     }];
 }
 
@@ -143,5 +154,8 @@
 }
 -(void)mainControllerNavigationMenuButtonDidTappedWithObject:(id)object{
     
+}
+-(BOOL)mainControllerTopbarShouldTransperant{
+    return YES;
 }
 @end

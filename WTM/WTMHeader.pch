@@ -16,7 +16,10 @@
 #import "AppDelegate.h"
 #import "MainController.h"
 #import "UIImageView+WebCache.h"
+#import "SHKActivityIndicator.h"
 AppDelegate *appDel;
+#define kTopbarBGColor [UIColor colorWithRed:37/255.0 green:41/255.0 blue:46/255.0 alpha:0.9]
+#define kTopbarTransperantBGColor [UIColor colorWithRed:37/255.0 green:41/255.0 blue:46/255.0 alpha:0.0];
 
 #endif
 
